@@ -1,5 +1,9 @@
 # DevContainer Base Image
 
+[![Build and Push DevContainer Base Image](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml/badge.svg)](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 カスタムDevContainerベースイメージ
 
 ## 目次
