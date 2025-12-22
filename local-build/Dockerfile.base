@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # シェル環境
     direnv \
     bash-completion \
+    openssh-client \
     # その他便利ツール
     jq \
     zip \
