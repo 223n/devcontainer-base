@@ -4,6 +4,11 @@
 
 - [変更履歴](#変更履歴)
   - [目次](#目次)
+  - [v1.2.1 (2024-12-22)](#v121-2024-12-22)
+    - [v1.2.1 - 1 - GitHub Actionsの非推奨機能を修正](#v121---1---github-actionsの非推奨機能を修正)
+      - [v1.2.1 - 1-1 - エラー内容](#v121---1-1---エラー内容)
+      - [v1.2.1 - 1-2 - 修正内容](#v121---1-2---修正内容)
+      - [v1.2.1 - 1-3 - 影響](#v121---1-3---影響)
   - [v1.2.0 (2024-12-22)](#v120-2024-12-22)
     - [v1.2.0 - 1 - OpenSSH-Clientを追加](#v120---1---openssh-clientを追加)
       - [v1.2.0 - 1-1 - エラー内容](#v120---1-1---エラー内容)
@@ -35,6 +40,26 @@
     - [v1.0.1 - 4 - テスト方法](#v101---4---テスト方法)
   - [v1.0.0 (2024-12-22)](#v100-2024-12-22)
     - [v1.0.0 - 1 - 初回リリース](#v100---1---初回リリース)
+
+## v1.2.1 (2024-12-22)
+
+### v1.2.1 - 1 - GitHub Actionsの非推奨機能を修正
+
+#### v1.2.1 - 1-1 - エラー内容
+
+```text
+Warning: The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+```
+
+#### v1.2.1 - 1-2 - 修正内容
+
+- GitHub CLI (`gh release create`) に変更
+- リリースノートをファイル経由で生成
+
+#### v1.2.1 - 1-3 - 影響
+
+- **build-image.yml**: リリース作成方法を修正
+- その他のファイル: 変更なし
 
 ## v1.2.0 (2024-12-22)
 

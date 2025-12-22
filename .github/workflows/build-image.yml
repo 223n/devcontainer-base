@@ -1,6 +1,6 @@
 # ========================================
 # DevContainerベースイメージビルドワークフロー
-# 手動実行専用 - バージョン指定版
+# 手動実行専用 - バージョン指定版（Release作成修正版）
 # ========================================
 name: Build and Release (Manual)
 
@@ -136,47 +136,66 @@ jobs:
           
           echo "✅ latestタグを更新しました"
 
+      - name: Generate release notes
+        if: success() && github.event.inputs.create_release == 'true'
+        id: release_notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          VERSION_SHORT="${{ steps.version.outputs.version_short }}"
+          
+          # リリースノートを生成
+          cat > release_notes.md << 'EOF'
+          ## DevContainer Base Image ${{ steps.version.outputs.version }}
+          
+          ### 🐳 Docker Image
+          
+          ```bash
+          # 完全バージョン指定
+          docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version_short }}
+          
+          # 最新版
+          docker pull ghcr.io/${{ github.repository }}:latest
+          ```
+          
+          ### 📦 使用方法
+          
+          **devcontainer.json**
+          ```json
+          {
+            "image": "ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version_short }}",
+            "remoteUser": "vscode"
+          }
+          ```
+          
+          ### 📋 変更内容
+          
+          詳細は [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) を参照してください。
+          
+          ### 🔗 関連リンク
+          
+          - [Docker Image](https://github.com/${{ github.repository }}/pkgs/container/devcontainer-base)
+          - [コミット履歴](https://github.com/${{ github.repository }}/commits/${{ steps.version.outputs.version }})
+          EOF
+          
+          echo "✅ リリースノートを生成しました"
+
       - name: Create GitHub Release
         if: success() && github.event.inputs.create_release == 'true'
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: Release ${{ steps.version.outputs.version }}
-          body: |
-            ## DevContainer Base Image ${{ steps.version.outputs.version }}
-            
-            ### 🐳 Docker Image
-            
-            ```bash
-            # 完全バージョン指定
-            docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version_short }}
-            
-            # 最新版
-            docker pull ghcr.io/${{ github.repository }}:latest
-            ```
-            
-            ### 📦 使用方法
-            
-            **devcontainer.json**
-            ```json
-            {
-              "image": "ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version_short }}",
-              "remoteUser": "vscode"
-            }
-            ```
-            
-            ### 📋 変更内容
-            
-            詳細は [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) を参照してください。
-            
-            ### 🔗 関連リンク
-            
-            - [Docker Image](https://github.com/${{ github.repository }}/pkgs/container/devcontainer-base)
-            - [コミット履歴](https://github.com/${{ github.repository }}/commits/${{ steps.version.outputs.version }})
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # 既存のリリースを削除（存在する場合）
+          gh release delete "${VERSION}" --yes 2>/dev/null || true
+          
+          # 新しいリリースを作成
+          gh release create "${VERSION}" \
+            --title "Release ${VERSION}" \
+            --notes-file release_notes.md \
+            --target "${{ github.sha }}"
+          
+          echo "✅ GitHub Release ${VERSION} を作成しました"
 
       - name: Summary
         if: success()
