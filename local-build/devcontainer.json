@@ -1,0 +1,51 @@
+{
+  "name": "xxx Development",
+  "runArgs": ["--name", "xxx-dev"],
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-next",
+        "cloudflare.cloudflare-workers-bindings-extension",
+        "eamodio.gitlens",
+        "vitest.explorer",
+        "editorconfig.editorconfig",
+        "christian-kohler.path-intellisense",
+        "usernamehw.errorlens",
+        "yzhang.markdown-all-in-one",
+        "davidanson.vscode-markdownlint",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-sqlite"
+      ]
+    }
+  },
+  "forwardPorts": [8787],
+  "portsAttributes": {
+    "8787": {
+      "label": "Wrangler Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "sleep 2 && npm install || (sleep 5 && npm install)",
+  "postStartCommand": "bash -c 'if [ ! -f .envrc ]; then echo \"📋 .envrcが見つかりません。テンプレートをコピーします...\"; cp .envrc.template .envrc && echo \"✅ .envrcを作成しました。必要に応じて編集してください。\"; fi && direnv allow && echo \"✅ direnvを許可しました。環境変数が自動的に読み込まれます。\" && echo \"DevContainer ready! Run: npm run dev\"'",
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "8gb"
+  }
+}
