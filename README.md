@@ -35,7 +35,8 @@ VS CodeのDevContainer機能で使用することを想定しています。
 - Git
 - curl
 - wget
-- vim, nano
+- vim
+- nano
 - direnv
 - sqlite3
 - jq
