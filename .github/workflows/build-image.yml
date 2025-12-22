@@ -1,7 +1,8 @@
 # ========================================
 # DevContainerベースイメージビルドワークフロー
+# セマンティックバージョニング対応版
 # ========================================
-name: Build and Push DevContainer Base Image
+name: Build and Push DevContainer Base Image (Semantic Versioning)
 
 on:
   push:
@@ -9,15 +10,22 @@ on:
       - master
     paths:
       - 'Dockerfile'
-      - '.github/workflows/build-image.yml'
+      - '.github/workflows/build-image-semver.yml'
+    tags:
+      - 'v*.*.*'  # v1.0.0 のようなタグをプッシュした時
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.1)'
+        required: false
+        type: string
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -26,6 +34,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -44,8 +54,10 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=sha,prefix={{branch}}-
-            type=ref,event=branch
 
       - name: Build and push image
         uses: docker/build-push-action@v5
@@ -58,5 +70,66 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-      - name: Image digest
-        run: echo "Image pushed with digest ${{ steps.meta.outputs.digest }}"
+      - name: Get version from tag or generate
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            # タグからバージョンを取得
+            VERSION="${GITHUB_REF#refs/tags/}"
+          elif [[ -n "${{ github.event.inputs.version }}" ]]; then
+            # 手動入力からバージョンを取得
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            # 最新のタグを取得して自動インクリメント
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+            echo "Latest tag: ${LATEST_TAG}"
+            
+            # バージョン番号を抽出してパッチバージョンをインクリメント
+            VERSION=$(echo "${LATEST_TAG}" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          fi
+          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "📌 バージョン: ${VERSION}"
+
+      - name: Create and push version tag
+        if: success() && !startsWith(github.ref, 'refs/tags/')
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # バージョンタグを作成
+          git tag -a "${VERSION}" -m "Release ${VERSION}"
+          git push origin "${VERSION}"
+          
+          # latestタグも更新
+          git tag -d latest 2>/dev/null || true
+          git tag -a latest -m "Latest release: ${VERSION}"
+          git push origin latest --force
+          
+          echo "✅ タグ ${VERSION} と latest を作成しました"
+
+      - name: Create GitHub Release
+        if: success() && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## DevContainer Base Image ${{ steps.version.outputs.version }}
+            
+            ### Docker Image
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
+            docker pull ghcr.io/${{ github.repository }}:latest
+            ```
+            
+            ### Changes
+            - Automated build from commit ${{ github.sha }}
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+          draft: false
+          prerelease: false
