@@ -67,6 +67,13 @@ RUN npm install -g \
     typescript@latest \
     prettier@latest
 
+# 日本語ロケールを生成・設定
+RUN sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG=ja_JP.UTF-8
+ENV LANGUAGE=ja_JP:ja
+ENV LC_ALL=ja_JP.UTF-8
+
 # vscodeユーザーの作成
 RUN groupadd --gid 1000 vscode \
     && useradd --uid 1000 --gid 1000 -m -s /bin/bash vscode \
@@ -88,6 +95,10 @@ RUN git config --global user.name "223n" \
     && git config --global init.defaultBranch master \
     && git config --global pull.rebase false \
     && git config --global core.editor "nano"
+
+# gitの安全なディレクトリに追加（vscodeユーザー用）
+RUN git config --global --add safe.directory /workspace \
+    && su - $USERNAME -c "git config --global --add safe.directory /workspace"
 
 # direnv自動読み込み設定
 RUN echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
