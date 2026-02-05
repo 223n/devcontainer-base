@@ -4,6 +4,15 @@
 
 - [変更履歴](#変更履歴)
   - [目次](#目次)
+  - [v1.3.0 (2026-02-05)](#v130-2026-02-05)
+    - [v1.3.0 - 1 - Node.jsインストール方法の変更](#v130---1---nodejsインストール方法の変更)
+      - [v1.3.0 - 1-1 - 問題](#v130---1-1---問題)
+      - [v1.3.0 - 1-2 - 解決策](#v130---1-2---解決策)
+        - [v1.3.0 - 1-2-1 - 変更前（NodeSourceリポジトリ使用）](#v130---1-2-1---変更前nodesourceリポジトリ使用)
+        - [v1.3.0 - 1-2-2 - 変更後（公式バイナリ直接インストール）](#v130---1-2-2---変更後公式バイナリ直接インストール)
+      - [v1.3.0 - 1-3 - 追加パッケージ](#v130---1-3---追加パッケージ)
+      - [v1.3.0 - 1-4 - メリット](#v130---1-4---メリット)
+      - [v1.3.0 - 1-5 - 影響](#v130---1-5---影響)
   - [v1.2.2 (2025-12-22)](#v122-2025-12-22)
     - [v1.2.2 - 1 - ドキュメント修正](#v122---1---ドキュメント修正)
     - [v1.2.2 - 2 - Release Noteのリンク先を修正](#v122---2---release-noteのリンク先を修正)
@@ -44,6 +53,68 @@
     - [v1.0.1 - 4 - テスト方法](#v101---4---テスト方法)
   - [v1.0.0 (2025-12-22)](#v100-2025-12-22)
     - [v1.0.0 - 1 - 初回リリース](#v100---1---初回リリース)
+
+## v1.3.0 (2026-02-05)
+
+### v1.3.0 - 1 - Node.jsインストール方法の変更
+
+#### v1.3.0 - 1-1 - 問題
+
+Debian 13 (trixie) が2026年2月1日からSHA1署名を拒否するセキュリティポリシーを適用。
+NodeSourceリポジトリのGPGキーがSHA1で署名されているため、`apt-get update` 時に検証エラーが発生。
+
+```text
+E: The repository 'https://deb.nodesource.com/node_20.x nodistro InRelease' is not signed.
+W: OpenPGP signature verification failed: ... SHA1 is not considered secure since 2026-02-01T00:00:00Z
+```
+
+#### v1.3.0 - 1-2 - 解決策
+
+NodeSourceリポジトリの使用を廃止し、Node.js公式バイナリを直接ダウンロード・インストールする方式に変更。
+
+##### v1.3.0 - 1-2-1 - 変更前（NodeSourceリポジトリ使用）
+
+```dockerfile
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+##### v1.3.0 - 1-2-2 - 変更後（公式バイナリ直接インストール）
+
+```dockerfile
+ENV NODE_VERSION=20.18.2
+
+RUN ARCH=$(dpkg --print-architecture) \
+    && case "${ARCH}" in \
+         amd64) NODE_ARCH='x64' ;; \
+         arm64) NODE_ARCH='arm64' ;; \
+         armhf) NODE_ARCH='armv7l' ;; \
+         *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
+       esac \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" -o /tmp/node.tar.xz \
+    && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.xz \
+    && node --version \
+    && npm --version
+```
+
+#### v1.3.0 - 1-3 - 追加パッケージ
+
+Node.jsのtar.xzアーカイブを展開するため、`xz-utils` パッケージを追加。
+
+#### v1.3.0 - 1-4 - メリット
+
+- 外部リポジトリに依存しない
+- マルチアーキテクチャ対応（amd64, arm64, armhf）
+- バージョン管理が明示的（`NODE_VERSION` 環境変数）
+
+#### v1.3.0 - 1-5 - 影響
+
+- [Dockerfile](./Dockerfile): Node.jsインストール方法を変更
+- [local-build/Dockerfile.base](./local-build/Dockerfile.base): 同上
+- その他のファイル: 変更なし
 
 ## v1.2.2 (2025-12-22)
 
