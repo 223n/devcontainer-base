@@ -63,6 +63,9 @@ RUN ARCH=$(dpkg --print-architecture) \
     && node --version \
     && npm --version
 
+# pnpmのインストール
+RUN npm install -g pnpm@latest-10
+
 # グローバルnpmパッケージのインストール（rootユーザーで実行）
 RUN npm install -g \
     wrangler@latest \
