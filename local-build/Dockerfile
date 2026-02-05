@@ -4,10 +4,11 @@
 # ========================================
 
 # ローカルビルド版のベースイメージを使用
-FROM 223n-devcontainer-base:latest
+ARG TAG=latest
+FROM 223n-devcontainer-base:${TAG}
 
 # または GitHub Container Registry版を使用する場合はコメントを切り替え
-# FROM ghcr.io/223n/devcontainer-base:latest
+# FROM ghcr.io/223n/devcontainer-base:${TAG}
 
 # プロジェクト固有の作業ディレクトリ
 WORKDIR /workspaces/vehicle-management
