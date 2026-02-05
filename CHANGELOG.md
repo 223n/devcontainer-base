@@ -4,6 +4,14 @@
 
 - [変更履歴](#変更履歴)
   - [目次](#目次)
+  - [v1.3.1 (2026-02-06)](#v131-2026-02-06)
+    - [v1.3.1 - 1 - Node.jsインストール方法の変更](#v131---1---nodejsインストール方法の変更)
+      - [v1.3.1 - 1-1 - 問題](#v131---1-1---問題)
+      - [v1.3.1 - 1-2 - 原因](#v131---1-2---原因)
+      - [v1.3.1 - 1-3 - 解決策](#v131---1-3---解決策)
+      - [v1.3.1 - 1-4 - 変更内容](#v131---1-4---変更内容)
+    - [v1.3.1 - 2 - 影響](#v131---2---影響)
+    - [v1.3.1 - 3 - 追加パッケージ](#v131---3---追加パッケージ)
   - [v1.3.0 (2026-02-05)](#v130-2026-02-05)
     - [v1.3.0 - 1 - Node.jsインストール方法の変更](#v130---1---nodejsインストール方法の変更)
       - [v1.3.0 - 1-1 - 問題](#v130---1-1---問題)
@@ -53,6 +61,79 @@
     - [v1.0.1 - 4 - テスト方法](#v101---4---テスト方法)
   - [v1.0.0 (2025-12-22)](#v100-2025-12-22)
     - [v1.0.0 - 1 - 初回リリース](#v100---1---初回リリース)
+
+## v1.3.1 (2026-02-06)
+
+### v1.3.1 - 1 - Node.jsインストール方法の変更
+
+NodeSourceリポジトリからNode.js公式バイナリ直接ダウンロードに変更しました。
+
+#### v1.3.1 - 1-1 - 問題
+
+DevContainerビルド時に以下のエラーが発生しました。
+
+```text
+E: The repository 'https://deb.nodesource.com/node_20.x nodistro InRelease' is not signed.
+ERROR: Feature "GitHub CLI" (ghcr.io/devcontainers/features/github-cli) failed to install!
+```
+
+#### v1.3.1 - 1-2 - 原因
+
+NodeSourceリポジトリのGPG署名がSHA1を使用しており、Debian Trixieでは2026年2月1日以降SHA1署名がセキュリティポリシーで拒否されるようになりました。
+
+```text
+Sub-process /usr/bin/sqv returned an error code (1), error message is:
+Signing key on 6F71F525282841EEDAF851B42F59B5F99B1BE0B4 is not bound:
+No binding signature at time 2026-01-19T15:27:46Z
+because: Policy rejected non-revocation signature (PositiveCertification)
+requiring second pre-image resistance
+because: SHA1 is not considered secure since 2026-02-01T00:00:00Z
+```
+
+#### v1.3.1 - 1-3 - 解決策
+
+Node.js公式サイトからバイナリを直接ダウンロードしてインストールする方式に変更しました。
+
+#### v1.3.1 - 1-4 - 変更内容
+
+変更前（NodeSourceリポジトリ使用）:
+
+```dockerfile
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+変更後（公式バイナリ直接ダウンロード）:
+
+```dockerfile
+ARG NODE_VERSION=20.18.2
+
+RUN ARCH=$(dpkg --print-architecture) \
+    && case "${ARCH}" in \
+         amd64) NODE_ARCH="x64" ;; \
+         arm64) NODE_ARCH="arm64" ;; \
+         *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
+       esac \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
+       -o /tmp/node.tar.xz \
+    && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.xz \
+    && ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
+    && node --version \
+    && npm --version
+```
+
+### v1.3.1 - 2 - 影響
+
+- [Dockerfile](./Dockerfile): Node.jsインストール方法を変更
+- [local-build/Dockerfile.base](./local-build/Dockerfile.base): 同上
+- その他のファイル: 変更なし
+
+### v1.3.1 - 3 - 追加パッケージ
+
+- `xz-utils`: `.tar.xz`ファイルの展開に必要
 
 ## v1.3.0 (2026-02-05)
 

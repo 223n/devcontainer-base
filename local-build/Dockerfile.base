@@ -14,9 +14,9 @@ LABEL org.opencontainers.image.licenses="MIT"
 # 非対話的インストールの設定
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Node.jsのバージョン設定
-# ※ バージョン更新時はここを変更
-ENV NODE_VERSION=25.6.0
+# Node.js バージョン設定
+# NOTE: LTSバージョンは https://nodejs.org/en/download で確認
+ARG NODE_VERSION=25.6.0
 
 # 基本パッケージのインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -28,7 +28,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nano \
     ca-certificates \
     gnupg \
-    xz-utils \
     # ビルドツール
     build-essential \
     # データベース
@@ -41,22 +40,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     zip \
     unzip \
+    xz-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js LTS のインストール（公式バイナリを直接使用）
-# NodeSourceリポジトリはDebian 13のSHA1拒否ポリシーに対応していないため、
-# Node.js公式バイナリを直接ダウンロードしてインストール
+# Node.js LTS のインストール（公式バイナリを直接ダウンロード）
+# NOTE: NodeSourceリポジトリのGPG署名（SHA1）がDebian Trixieで拒否されるため、
+#       公式バイナリを直接インストールする方式に変更（2026年2月以降の対応）
 RUN ARCH=$(dpkg --print-architecture) \
     && case "${ARCH}" in \
-         amd64) NODE_ARCH='x64' ;; \
-         arm64) NODE_ARCH='arm64' ;; \
-         armhf) NODE_ARCH='armv7l' ;; \
+         amd64) NODE_ARCH="x64" ;; \
+         arm64) NODE_ARCH="arm64" ;; \
          *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
        esac \
-    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" -o /tmp/node.tar.xz \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
+       -o /tmp/node.tar.xz \
     && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
     && rm /tmp/node.tar.xz \
+    && ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && node --version \
     && npm --version
 
