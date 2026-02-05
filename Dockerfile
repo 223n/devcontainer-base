@@ -100,7 +100,7 @@ RUN git config --global user.name "223n" \
 
 # gitの安全なディレクトリに追加（vscodeユーザー用）
 RUN git config --global --add safe.directory /workspace \
-    && su - $USERNAME -c "git config --global --add safe.directory /workspace"
+    && sudo -u $USERNAME git config --global --add safe.directory /workspace
 
 # direnv自動読み込み設定
 RUN echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
