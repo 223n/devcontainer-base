@@ -36,6 +36,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     direnv \
     bash-completion \
     openssh-client \
+    # 日本語ロケール
+    locales \
     # その他便利ツール
     jq \
     zip \
