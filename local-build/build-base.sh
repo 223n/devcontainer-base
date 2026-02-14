@@ -29,19 +29,13 @@ docker build \
     -t "${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}" \
     "${SCRIPT_DIR}"
 
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "✅ ベースイメージのビルドが完了しました！"
-    echo ""
-    echo "イメージ情報:"
-    docker images "${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}"
-    echo ""
-    echo "📝 次のステップ:"
-    echo "  1. VS Codeで 'Dev Containers: Rebuild Container' を実行"
-    echo "  2. または、docker-compose を使用する場合は再起動"
-    echo ""
-else
-    echo ""
-    echo "❌ ビルドに失敗しました"
-    exit 1
-fi
+echo ""
+echo "✅ ベースイメージのビルドが完了しました！"
+echo ""
+echo "イメージ情報:"
+docker images "${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}"
+echo ""
+echo "📝 次のステップ:"
+echo "  1. VS Codeで 'Dev Containers: Rebuild Container' を実行"
+echo "  2. または、docker-compose を使用する場合は再起動"
+echo ""
