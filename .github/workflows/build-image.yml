@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -146,19 +146,19 @@ jobs:
           # リリースノートを生成
           cat > release_notes.md << 'EOF'
           ## DevContainer Base Image ${{ steps.version.outputs.version }}
-          
+
           ### 🐳 Docker Image
-          
+
           ```bash
           # 完全バージョン指定
           docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version_short }}
-          
+
           # 最新版
           docker pull ghcr.io/${{ github.repository }}:latest
           ```
-          
+
           ### 📦 使用方法
-          
+
           **devcontainer.json**
           ```json
           {
@@ -166,13 +166,13 @@ jobs:
             "remoteUser": "vscode"
           }
           ```
-          
+
           ### 📋 変更内容
-          
+
           詳細は [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) を参照してください。
-          
+
           ### 🔗 関連リンク
-          
+
           - [Docker Image](https://github.com/${{ github.repository }}/pkgs/container/devcontainer-base)
           - [コミット履歴](https://github.com/${{ github.repository }}/commits/${{ steps.version.outputs.version }})
           EOF
