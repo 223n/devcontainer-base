@@ -23,7 +23,8 @@
       "source": "devcontainer-base-wrangler-config",
       "target": "/home/vscode/.wrangler",
       "type": "volume"
-    }
+    },
+    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
   "customizations": {
     "vscode": {
@@ -54,7 +55,7 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "sleep 2 && npm install || (sleep 5 && npm install)",
+  "postCreateCommand": "sudo chown vscode:vscode node_modules 2>/dev/null || true && npm install || (sleep 5 && npm install)",
   "postStartCommand": "bash -c 'if [ ! -f .envrc ]; then echo \"📋 .envrcが見つかりません。テンプレートをコピーします...\"; cp .envrc.template .envrc && echo \"✅ .envrcを作成しました。必要に応じて編集してください。\"; fi && direnv allow && echo \"✅ direnvを許可しました。環境変数が自動的に読み込まれます。\" && echo \"DevContainer ready! Run: npm run dev\"'",
   "remoteUser": "vscode",
   "remoteEnv": {
