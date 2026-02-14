@@ -8,6 +8,23 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
+  "mounts": [
+    {
+      "source": "devcontainer-base-gh-config",
+      "target": "/home/vscode/.config/gh",
+      "type": "volume"
+    },
+    {
+      "source": "devcontainer-base-claude-config",
+      "target": "/home/vscode/.claude",
+      "type": "volume"
+    },
+    {
+      "source": "devcontainer-base-wrangler-config",
+      "target": "/home/vscode/.wrangler",
+      "type": "volume"
+    }
+  ],
   "customizations": {
     "vscode": {
       "settings": {
