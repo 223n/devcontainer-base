@@ -3,6 +3,7 @@
 # 手動実行専用 - バージョン指定版（Release作成修正版）
 # ========================================
 name: Build and Release (Manual)
+run-name: "Build and Release ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
