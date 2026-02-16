@@ -47,6 +47,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# GitHub CLI のインストール
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && printf '%s\n' \
+      "Types: deb" \
+      "URIs: https://cli.github.com/packages" \
+      "Suites: stable" \
+      "Components: main" \
+      "Architectures: $(dpkg --print-architecture)" \
+      "Signed-By: /usr/share/keyrings/githubcli-archive-keyring.gpg" \
+      > /etc/apt/sources.list.d/github-cli.sources \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Node.js 25 のインストール（公式バイナリを直接ダウンロード）
 # NOTE: NodeSourceリポジトリのGPG署名（SHA1）がDebian Trixieで拒否されるため、
 #       公式バイナリを直接インストールする方式に変更（2026年2月以降の対応）
@@ -121,7 +138,7 @@ WORKDIR /home/vscode
 SHELL ["/bin/bash", "-c"]
 
 # Node.jsとnpmのバージョン確認用
-RUN node --version && npm --version && git --version
+RUN node --version && npm --version && git --version && gh --version
 
 # ヘルスチェック
 HEALTHCHECK NONE
