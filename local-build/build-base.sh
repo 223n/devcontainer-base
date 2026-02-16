@@ -6,6 +6,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${SCRIPT_DIR}/.."
 BASE_IMAGE_NAME="223n-devcontainer-base"
 BASE_IMAGE_TAG="latest"
 
@@ -16,18 +17,18 @@ echo ""
 echo "イメージ名: ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}"
 echo ""
 
-# Dockerfile.baseが存在するか確認
-if [ ! -f "${SCRIPT_DIR}/Dockerfile.base" ]; then
-    echo "❌ エラー: Dockerfile.base が見つかりません"
+# Dockerfileが存在するか確認
+if [ ! -f "${PROJECT_ROOT}/Dockerfile" ]; then
+    echo "❌ エラー: Dockerfile が見つかりません"
     exit 1
 fi
 
 # ベースイメージのビルド
 echo "🔨 ベースイメージをビルドしています..."
 docker build \
-    -f "${SCRIPT_DIR}/Dockerfile.base" \
+    -f "${PROJECT_ROOT}/Dockerfile" \
     -t "${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}" \
-    "${SCRIPT_DIR}"
+    "${PROJECT_ROOT}"
 
 echo ""
 echo "✅ ベースイメージのビルドが完了しました！"
