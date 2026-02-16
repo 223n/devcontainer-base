@@ -2,8 +2,8 @@
 # DevContainerベースイメージビルドワークフロー
 # 手動実行専用 - バージョン指定版（Release作成修正版）
 # ========================================
-name: Build and Release (Manual)
-run-name: "Build and Release ${{ inputs.version }}"
+name: ベースイメージのビルドとリリース
+run-name: "ビルドとリリース ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
@@ -30,12 +30,12 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: リポジトリのチェックアウト
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Validate and normalize version
+      - name: バージョンの検証と正規化
         id: version
         run: |
           VERSION="${{ github.event.inputs.version }}"
@@ -57,7 +57,7 @@ jobs:
           echo "version_short=${VERSION#v}" >> $GITHUB_OUTPUT
           echo "📌 バージョン: ${VERSION}"
 
-      - name: Check if tag already exists
+      - name: タグの存在確認
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           
@@ -68,17 +68,17 @@ jobs:
             echo "✅ タグ ${VERSION} は新規作成されます"
           fi
 
-      - name: Set up Docker Buildx
+      - name: Docker Buildxのセットアップ
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Container Registry
+      - name: Container Registryへのログイン
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: メタデータの抽出
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -90,7 +90,7 @@ jobs:
             type=semver,pattern={{major}},value=${{ steps.version.outputs.version }}
             type=sha,prefix=sha-
 
-      - name: Build and push image
+      - name: イメージのビルドとプッシュ
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -101,7 +101,7 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-      - name: Create and push version tag
+      - name: バージョンタグの作成とプッシュ
         if: success()
         run: |
           VERSION="${{ steps.version.outputs.version }}"
@@ -120,7 +120,7 @@ jobs:
           
           echo "✅ バージョンタグ ${VERSION} を作成しました"
 
-      - name: Update latest tag
+      - name: latestタグの更新
         if: success()
         run: |
           git config user.name "github-actions[bot]"
@@ -137,7 +137,7 @@ jobs:
           
           echo "✅ latestタグを更新しました"
 
-      - name: Generate release notes
+      - name: リリースノートの生成
         if: success() && github.event.inputs.create_release == 'true'
         id: release_notes
         run: |
@@ -180,7 +180,7 @@ jobs:
           
           echo "✅ リリースノートを生成しました"
 
-      - name: Create GitHub Release
+      - name: GitHub Releaseの作成
         if: success() && github.event.inputs.create_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -198,7 +198,7 @@ jobs:
           
           echo "✅ GitHub Release ${VERSION} を作成しました"
 
-      - name: Summary
+      - name: サマリー
         if: success()
         run: |
           VERSION="${{ steps.version.outputs.version }}"
