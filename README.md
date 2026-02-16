@@ -1,6 +1,6 @@
 # DevContainer Base Image
 
-[![Build and Push DevContainer Base Image](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml/badge.svg)](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml)
+[![ベースイメージのビルドとリリース](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml/badge.svg)](https://github.com/223n/devcontainer-base/actions/workflows/build-image.yml)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
@@ -20,7 +20,7 @@
     - [3-1. GitHub Container Registryから使用](#3-1-github-container-registryから使用)
     - [3-2. ローカルでビルド](#3-2-ローカルでビルド)
   - [4. ビルド](#4-ビルド)
-    - [4-1. GitHub Actionsで自動ビルド](#4-1-github-actionsで自動ビルド)
+    - [4-1. GitHub Actionsでビルド](#4-1-github-actionsでビルド)
     - [4-2. 手動ビルド](#4-2-手動ビルド)
   - [5. カスタマイズ](#5-カスタマイズ)
   - [6. 更新](#6-更新)
@@ -47,6 +47,7 @@ VS CodeのDevContainer機能で使用することを想定しています。
 - zip
 - unzip
 - bash-completion
+- GitHub CLI（gh）
 
 ### 2-2. 開発ツール
 
@@ -81,9 +82,9 @@ init.defaultBranch = master
 
 ```json
 {
-  "name": "VMS Development",
+  "name": "My Project",
   "image": "ghcr.io/223n/devcontainer-base:latest",
-  "runArgs": ["--name", "vms-dev"],
+  "runArgs": ["--name", "my-project-dev"],
   "remoteUser": "vscode",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "customizations": {
@@ -107,18 +108,18 @@ docker build -t 223n-devcontainer-base:latest .
 
 ```json
 {
-  "name": "VMS Development",
+  "name": "My Project",
   "image": "223n-devcontainer-base:latest",
-  "runArgs": ["--name", "vms-dev"],
+  "runArgs": ["--name", "my-project-dev"],
   "remoteUser": "vscode"
 }
 ```
 
 ## 4. ビルド
 
-### 4-1. GitHub Actionsで自動ビルド
+### 4-1. GitHub Actionsでビルド
 
-masterブランチにpushすると自動的にビルドされます。
+GitHub Actionsの手動実行（workflow_dispatch）でビルドとリリースを行います。
 
 ### 4-2. 手動ビルド
 
@@ -159,4 +160,7 @@ docker pull ghcr.io/223n/devcontainer-base:latest
 ## 7. バージョン管理
 
 - `latest`: 最新の安定版
-- `master-<commit-sha>`: masterブランチの特定コミット
+- `1.3.4`: 完全バージョン
+- `1.3`: マイナーバージョン
+- `1`: メジャーバージョン
+- `sha-<commit-sha>`: 特定コミット

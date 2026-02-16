@@ -80,13 +80,13 @@ GitHubリポジトリの「Actions」タブで自動ビルドが実行される�
 
 #### 1-1-5. ステップ5: プロジェクトで使用
 
-`vehicle-management/.devcontainer/devcontainer.json`:
+`your-project/.devcontainer/devcontainer.json`:
 
 ```json
 {
-  "name": "VMS Development",
+  "name": "My Project",
   "image": "ghcr.io/223n/devcontainer-base:latest",
-  "runArgs": ["--name", "vms-dev"],
+  "runArgs": ["--name", "my-project-dev"],
   "remoteUser": "vscode",
   "customizations": {
     "vscode": {
@@ -142,7 +142,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u 223n --password-stdin
 `local-build/` の内容を `.devcontainer/` にコピー:
 
 ```bash
-cd vehicle-management
+cd your-project
 cp -r /path/to/local-build/* .devcontainer/
 ```
 
@@ -255,7 +255,7 @@ docker system prune -a
 
 ### 6-2. ローカルビルド版
 
-1. `Dockerfile.base` を編集
+1. `Dockerfile` を編集
 2. `./build-base.sh` 実行
 3. VS Code: "Dev Containers: Rebuild Container"
 

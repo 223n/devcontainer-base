@@ -28,10 +28,9 @@
 
 ```text
 .devcontainer/
-├── Dockerfile.base         # ベースイメージ定義
 ├── Dockerfile             # プロジェクト固有設定
 ├── devcontainer.json      # DevContainer設定
-└── build-base.sh          # ビルドスクリプト
+└── build-base.sh          # ビルドスクリプト（ルートのDockerfileを参照）
 ```
 
 ## 2. セットアップ手順
@@ -41,7 +40,7 @@
 このディレクトリの内容を `.devcontainer/` にコピーします:
 
 ```bash
-# vehicle-managementプロジェクトのルートから実行
+# プロジェクトのルートから実行
 cp -r local-build/* .devcontainer/
 ```
 
@@ -55,8 +54,7 @@ cd .devcontainer
 または、直接Dockerコマンドを実行:
 
 ```bash
-cd .devcontainer
-docker build -f Dockerfile.base -t 223n-devcontainer-base:latest .
+docker build -t 223n-devcontainer-base:latest .
 ```
 
 ### 2-3. DevContainerの起動
@@ -88,8 +86,6 @@ cd .devcontainer
 ```dockerfile
 FROM 223n-devcontainer-base:latest
 
-WORKDIR /workspaces/vehicle-management
-
 # プロジェクト固有のツールを追加
 RUN npm install -g your-custom-tool
 
@@ -98,7 +94,7 @@ USER vscode
 
 ### 4-2. Git設定の変更
 
-`Dockerfile.base` を編集:
+ルートの `Dockerfile` を編集:
 
 ```dockerfile
 # Git グローバル設定
@@ -124,9 +120,9 @@ FROM ghcr.io/223n/devcontainer-base:latest
 
 ```json
 {
-  "name": "VMS Development",
+  "name": "My Project",
   "image": "ghcr.io/223n/devcontainer-base:latest",
-  "runArgs": ["--name", "vms-dev"],
+  "runArgs": ["--name", "my-project-dev"],
   "remoteUser": "vscode"
 }
 ```
@@ -148,10 +144,10 @@ cd .devcontainer
 
 ```bash
 # 古いコンテナを削除
-docker rm -f vms-dev
+docker rm -f my-project-dev
 
 # イメージを再ビルド
-docker build -f .devcontainer/Dockerfile.base -t 223n-devcontainer-base:latest .devcontainer/
+docker build -t 223n-devcontainer-base:latest .
 
 # VS Code: "Dev Containers: Rebuild Container"
 ```
@@ -171,11 +167,11 @@ docker build -f .devcontainer/Dockerfile.base -t 223n-devcontainer-base:latest .
 ## 9. GitHub Container Registry版との比較
 
 | 項目             | ローカルビルド       | GitHub Container Registry |
-|------------------|----------------------|---------------------------|
+| ---------------- | -------------------- | ------------------------- |
 | 初回セットアップ | ビルド必要（5-10分） | プル（1-2分）             |
-| オフライン使用   | ✅ 可能              | ❌ 初回プル必要           |
-| チーム共有       | ❌ 各自ビルド        | ✅ 簡単                   |
-| 変更の反映       | ✅ 即座              | GitHub Actions経由        |
+| オフライン使用   | 可能                 | 初回プル必要              |
+| チーム共有       | 各自ビルド           | v 簡単                    |
+| 変更の反映       | 即座                 | GitHub Actions経由        |
 | ディスク使用量   | 多い                 | 少ない                    |
 
 ## 10. 推奨
