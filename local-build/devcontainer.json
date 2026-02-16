@@ -1,12 +1,9 @@
 {
-  "name": "xxx Development",
-  "runArgs": ["--name", "xxx-dev"],
+  "name": "Development",
+  "runArgs": ["--name", "dev"],
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "mounts": [
     {
@@ -24,7 +21,11 @@
       "target": "/home/vscode/.wrangler",
       "type": "volume"
     },
-    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    {
+      "source": "${localWorkspaceFolderBasename}-node_modules",
+      "target": "${containerWorkspaceFolder}/node_modules",
+      "type": "volume"
+    }
   ],
   "customizations": {
     "vscode": {
@@ -44,7 +45,8 @@
         "yzhang.markdown-all-in-one",
         "davidanson.vscode-markdownlint",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite"
+        "mtxr.sqltools-driver-sqlite",
+        "mkhl.direnv"
       ]
     }
   },
