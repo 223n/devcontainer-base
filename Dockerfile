@@ -1,6 +1,6 @@
 # ========================================
 # カスタムDevContainerベースイメージ
-# Debian 13 (trixie) + Node.js 25
+# Debian 13 (trixie) + Node.js 26
 # User: vscode
 # ========================================
 
@@ -9,7 +9,7 @@ FROM debian:${TAG}
 
 # メタデータ
 LABEL org.opencontainers.image.source="https://github.com/223n/devcontainer-base"
-LABEL org.opencontainers.image.description="Custom DevContainer base image with Node.js 25 on Debian 13"
+LABEL org.opencontainers.image.description="Custom DevContainer base image with Node.js 26 on Debian 13"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # 非対話的インストールの設定
@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Node.js バージョン設定
 # NOTE: LTSバージョンは https://nodejs.org/en/download で確認
-ARG NODE_VERSION=25.6.1
+ARG NODE_VERSION=26.2.0
 
 # 基本パッケージのインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -64,7 +64,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js 25 のインストール（公式バイナリを直接ダウンロード）
+# Node.js 26 のインストール（公式バイナリを直接ダウンロード）
 # NOTE: NodeSourceリポジトリのGPG署名（SHA1）がDebian Trixieで拒否されるため、
 #       公式バイナリを直接インストールする方式に変更（2026年2月以降の対応）
 RUN ARCH=$(dpkg --print-architecture) \

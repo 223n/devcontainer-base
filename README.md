@@ -28,7 +28,7 @@
 
 ## 1. 概要
 
-Debian 13 (trixie) + Node.js 25をベースとした開発環境用Dockerイメージです。
+Debian 13 (trixie) + Node.js 26をベースとした開発環境用Dockerイメージです。
 
 VS CodeのDevContainer機能で使用することを想定しています。
 
@@ -51,7 +51,7 @@ VS CodeのDevContainer機能で使用することを想定しています。
 
 ### 2-2. 開発ツール
 
-- Node.js 25
+- Node.js 26
 - npm（Node.js付属）
 - pnpm 10
 - TypeScript（latest）
