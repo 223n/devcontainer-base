@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Node.js バージョン設定
 # NOTE: LTSバージョンは https://nodejs.org/en/download で確認
-ARG NODE_VERSION=26.2.0
+ARG NODE_VERSION=26.4.0
 
 # 基本パッケージのインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
