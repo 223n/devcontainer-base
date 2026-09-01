@@ -160,7 +160,7 @@ docker pull ghcr.io/223n/devcontainer-base:latest
 ## 7. バージョン管理
 
 - `latest`: 最新の安定版
-- `1.3.6`: 完全バージョン
+- `1.7.0`: 完全バージョン
 - `1.3`: マイナーバージョン
 - `1`: メジャーバージョン
 - `sha-<commit-sha>`: 特定コミット
