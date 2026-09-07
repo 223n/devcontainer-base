@@ -85,10 +85,19 @@ RUN ARCH=$(dpkg --print-architecture) \
 RUN npm install -g pnpm@latest-10
 
 # グローバルnpmパッケージのインストール（rootユーザーで実行）
+#
+# @latest は使わない。ビルドした時期によって入るバージョンが変わり、
+# 同じタグのイメージでも中身が揃わなくなるため。
+#
+# typescript を 5 系に固定しているのは、npm の latest が 7.0.2 になった一方で、
+# 下流のリポジトリが typescript-eslint 未対応を理由に 7 系を除外しているため
+# （FursuitWeather の .github/dependabot.yml を参照）。
+# コンテナーが配る tsc と各リポジトリが使う tsc の系列を揃える。
+# typescript-eslint が 7 系へ対応したら、ここも合わせて上げる。
 RUN npm install -g \
-    wrangler@latest \
-    typescript@latest \
-    prettier@latest
+    wrangler@4 \
+    typescript@5 \
+    prettier@3
 
 # 日本語ロケールを生成・設定
 RUN sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen && \
@@ -120,7 +129,13 @@ RUN git config --global user.name "223n" \
     && git config --global core.editor "nano"
 
 # gitの安全なディレクトリに追加（vscodeユーザー用）
-RUN git config --global --add safe.directory /workspace
+#
+# 実際のマウント先は devcontainer の既定である /workspaces/<リポジトリ名> で、
+# リポジトリごとに変わる。/workspace を1つ指定しても一度も一致しないため、
+# git が「dubious ownership」で操作を拒む。
+# safe.directory はパスのグロブを解さず、すべてを許可する * のみを受け付ける。
+# 開発コンテナー内は利用者自身の作業領域であるため * を指定する。
+RUN git config --global --add safe.directory '*'
 
 # direnv自動読み込み設定
 RUN echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
